@@ -1,0 +1,1 @@
+export const HEADER_TITLE_DATE_FORMAT = 'MMMM yyyy';
