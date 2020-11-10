@@ -19,8 +19,10 @@ let reducer = (state, action) => {
       return { ...state, reminders: [] };
     case "NEXT_DATE":
       return { ...state, currentDate: addMonths(state.currentDate, -1) };
-    case "PREVOIUS_DATE":
+    case "PREVIOUS_DATE":
       return { ...state, currentDate: addMonths(state.currentDate, 1) };
+    case "IS_ADDING_REMINDER":
+      return { ...state, isAddingReminder: action.payload.isAddingReminder };
     default:
       return;
   }
@@ -29,6 +31,7 @@ let reducer = (state, action) => {
 const initialState = {
   reminders: [],
   currentDate: new Date(),
+  isAddingReminder: false,
 };
 const CalendarContext = createContext(initialState);
 

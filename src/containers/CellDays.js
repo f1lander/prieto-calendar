@@ -1,25 +1,25 @@
-import { useContext, useEffect, useLayoutEffect } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
+
 import styled from "styled-components";
 import {
-  addDays,
-  subDays,
-  format,
   startOfWeek,
   startOfMonth,
   endOfWeek,
   endOfMonth,
   eachDayOfInterval,
+  isWeekend,
 } from "date-fns";
 
 import { CalendarContext } from "../context";
+import CellDay from "../components/CellDay";
 
 function WeekDays(props) {
   const { state } = useContext(CalendarContext);
-  const { currentDate, reminders } = state;
+  const { currentDate } = state;
+
+  const [cellDays, setCellDays] = useState([]);
 
   useLayoutEffect(() => {
-    debugger;
-    //fill first blanks
     const startOfMonthDay = startOfMonth(currentDate);
     const endOfMonthDay = endOfMonth(currentDate);
 
@@ -29,39 +29,40 @@ function WeekDays(props) {
     const firstBlanksCells = eachDayOfInterval({
       start: startOfWeekDay,
       end: startOfMonthDay,
-    }).filter((date) => date < startOfMonthDay);
+    })
+      .filter((date) => date < startOfMonthDay)
+      .map((item) => ({
+        inCurrentMonth: false,
+        date: item,
+      }));
     const lastBlanksCells = eachDayOfInterval({
       start: endOfMonthDay,
       end: endOfWeekDay,
-    }).filter((date) => date > endOfMonthDay);
+    })
+      .filter((date) => date > endOfMonthDay)
+      .map((item) => ({
+        inCurrentMonth: false,
+        date: item,
+      }));
 
-    console.log("first", firstBlanksCells);
-    console.log("last", lastBlanksCells);
+    const monthDays = eachDayOfInterval(startOfMonthDay, endOfMonthDay).map(
+      (item) => ({
+        inCurrentMonth: true,
+        date: item,
+        holiday: isWeekend(item),
+      })
+    );
+    setCellDays([...firstBlanksCells, ...monthDays, ...lastBlanksCells]);
   }, [currentDate]);
 
   return (
     <Container>
-      <h1>elooooooo</h1>
+      {cellDays.map((item) => (
+        <CellDay {...item} />
+      ))}
     </Container>
   );
 }
-
-// Array.from(Array(7)).map((e, i) => (
-//     <DayCell notMonthDay>{format(addDays(firstDOW, i), "EEEE")}</DayCell>
-//   ));
-
-const DayCell = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: auto;
-  justify-content: flex-start;
-  width: 300px;
-  height: 300px;
-  background-color: #f26627;
-  color: ${({ notMonthDay }) => (notMonthDay ? "gray" : "white")};
-`;
 
 const Container = styled.div`
   display: flex;
