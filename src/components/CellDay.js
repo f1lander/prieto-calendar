@@ -1,24 +1,41 @@
+import styled, { css } from "styled-components";
 import { useContext } from "react";
-import styled from "styled-components";
-import { ButtonBase, Drawer } from "@material-ui/core";
+import { isSameDay } from "date-fns";
+import { Box, ButtonBase } from "@material-ui/core";
 import { getDate } from "date-fns";
+
+import Reminder from "../components/Reminder";
 import { CalendarContext } from "../context";
 
 function CellDay(props) {
-  const { date } = props;
-  const { state, dispatch } = useContext(CalendarContext);
-  const { isAddingReminder } = state;
-  const handleOnClick = () => {
-    dispatch({ type: "IS_ADDING_REMINDER", payload: true });
-  };
+  const { state } = useContext(CalendarContext);
+  const { reminders } = state;
+  const { date, inCurrentMonth, holiday, onClick } = props;
+  const filteredReminders = reminders.filter((item) =>
+    isSameDay(new Date(item.date), date)
+  );
   return (
     <>
-      <CellButton onClick={handleOnClick}>
-        <DayLabel>{getDate(date)}</DayLabel>
+      <CellButton
+        disabled={!inCurrentMonth}
+        hasReminder={filteredReminders.length}
+        onClick={onClick}
+      >
+        <DayLabel inCurrentMonth={inCurrentMonth} holiday={holiday}>
+          {getDate(date)}
+        </DayLabel>
+        <Box pt={1} />
+        {filteredReminders.map((reminder) => (
+          <Reminder
+            onClick={(e) => {
+              e.stopPropagation(); 
+              console.log("the reminde", e);
+              onClick(e, reminder);
+            }}
+            {...reminder}
+          />
+        ))}
       </CellButton>
-      <Drawer anchor="top" open={isAddingReminder}>
-        <h1> eloooou </h1>
-      </Drawer>
     </>
   );
 }
@@ -26,7 +43,16 @@ function CellDay(props) {
 export default CellDay;
 
 const DayLabel = styled.div`
-  text-align: start;
+  display: flex;
+  justify-content: flex-flex-start;
+  align-items: flex-start;
+  color: ${({ inCurrentMonth }) => (inCurrentMonth ? "#222c3c" : " #999ea7")};
+  ${({ holiday }) =>
+    holiday &&
+    css`
+      color: "orange";
+      font-weight: 700;
+    `}
 `;
 
 const CellButton = styled(ButtonBase)`
@@ -36,8 +62,9 @@ const CellButton = styled(ButtonBase)`
   overflow-y: auto;
   overflow-x: auto;
   justify-content: flex-start;
-  width: 300px;
-  height: 300px;
-  background-color: ${({ holiday }) => holiday && "gray"};
-  color: ${({ inCurrentMonth }) => (inCurrentMonth ? "white" : "gray")};
+  border: 1px solid lightgray;
+  width: calc(100% / 7);
+  min-height: 8rem;
+  padding: 0.5rem;
+  background-color: ${({ hasReminder }) => hasReminder && "#dfdbd8"};
 `;

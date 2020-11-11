@@ -1,12 +1,28 @@
 import { useReducer, createContext } from "react";
-import { addMonths } from "date-fns";
+import { addMonths, subMonths } from "date-fns";
+
+const defaultReminder = {
+  title: null,
+  description: null,
+  date: null,
+  time: null,
+  color: "#607d8b",
+  city: null,
+};
 
 let reducer = (state, action) => {
   switch (action.type) {
-    case "ADD_REMINDER":
+    case "SET_REMINDER":
+      const reminder = action.payload || defaultReminder;
       return {
         ...state,
-        reminders: [...state.reminders, action.payload.reminder],
+        currentReminder: reminder,
+      };
+    case "ADD_REMINDER":
+      debugger;
+      return {
+        ...state,
+        reminders: [...state.reminders, action.payload],
       };
     case "REMOVE_REMINDER":
       return {
@@ -18,11 +34,11 @@ let reducer = (state, action) => {
     case "REMOVE_ALL_REMINDER":
       return { ...state, reminders: [] };
     case "NEXT_DATE":
-      return { ...state, currentDate: addMonths(state.currentDate, -1) };
-    case "PREVIOUS_DATE":
       return { ...state, currentDate: addMonths(state.currentDate, 1) };
+    case "PREVIOUS_DATE":
+      return { ...state, currentDate: subMonths(state.currentDate, 1) };
     case "IS_ADDING_REMINDER":
-      return { ...state, isAddingReminder: action.payload.isAddingReminder };
+      return { ...state, isAddingReminder: action.payload };
     default:
       return;
   }
@@ -32,6 +48,7 @@ const initialState = {
   reminders: [],
   currentDate: new Date(),
   isAddingReminder: false,
+  currentReminder: null,
 };
 const CalendarContext = createContext(initialState);
 

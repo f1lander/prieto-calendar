@@ -1,31 +1,32 @@
-import { Typography } from "@material-ui/core";
+import { Box, ButtonBase, Typography } from "@material-ui/core";
 import styled from "styled-components";
-import { Typography } from "@material-ui/core";
 
 function Reminder(props) {
-  const { reminder } = props;
+
+  const {
+    title,
+    time,
+    color,
+  } = props;
 
   return (
-    <Container>
-      <Reminder>
-        <TagColor color={reminder.tagColor} />
-        <Label>{reminder.title}</Label>
-      </Reminder>
+    <Container color={color}>    
+      <Typography variant="caption">{title}</Typography>
+      <Box pl={1} />
+      <Typography variant="caption">{time}</Typography>
     </Container>
   );
 }
 
 export default Reminder;
 
-const TagColor = styled.div`
-  background-color: ${({ color }) => color};
-`;
-
-const Label = styled(Typography)`
-  background-color: ${({ tagColor }) => tagColor};
-`;
-const Container = styled.div`
+const Container = styled(ButtonBase)`
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+  border-radius: 3px;
+  background-color: ${({ color }) => color || "#bedadc"};
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+  margin-bottom: 0.3rem;
 `;

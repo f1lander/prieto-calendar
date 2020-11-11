@@ -1,6 +1,5 @@
 import { useContext, useLayoutEffect, useState } from "react";
 
-import styled from "styled-components";
 import {
   startOfWeek,
   startOfMonth,
@@ -11,14 +10,34 @@ import {
 } from "date-fns";
 
 import { CalendarContext } from "../context";
+
+import CreateReminder from "./CreateReminder";
+
 import CellDay from "../components/CellDay";
+import { Container } from "../components/utils/commonComponents";
 
 function WeekDays(props) {
-  const { state } = useContext(CalendarContext);
-  const { currentDate } = state;
+  const { state, dispatch } = useContext(CalendarContext);
+
+  const { currentDate, currentReminder } = state;
 
   const [cellDays, setCellDays] = useState([]);
 
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleOnClick = (event, reminder) => {
+    event.stopPropagation(); 
+    setAnchorEl(event.currentTarget);
+    dispatch({ type: "SET_REMINDER", payload: reminder });
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    //dispatch({ type: "IS_ADDING_REMINDER", payload: false });
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
   useLayoutEffect(() => {
     const startOfMonthDay = startOfMonth(currentDate);
     const endOfMonthDay = endOfMonth(currentDate);
@@ -45,27 +64,33 @@ function WeekDays(props) {
         date: item,
       }));
 
-    const monthDays = eachDayOfInterval(startOfMonthDay, endOfMonthDay).map(
-      (item) => ({
-        inCurrentMonth: true,
-        date: item,
-        holiday: isWeekend(item),
-      })
-    );
+    const monthDays = eachDayOfInterval({
+      start: startOfMonthDay,
+      end: endOfMonthDay,
+    }).map((item) => ({
+      inCurrentMonth: true,
+      date: item,
+      holiday: isWeekend(item),
+    }));
     setCellDays([...firstBlanksCells, ...monthDays, ...lastBlanksCells]);
   }, [currentDate]);
 
   return (
-    <Container>
+    <Container wrap>
       {cellDays.map((item) => (
-        <CellDay {...item} />
+        <CellDay onClick={handleOnClick} {...item} />
       ))}
+      {open && (
+        <CreateReminder
+          reminder={currentReminder}
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          handleClose={handleClose}
+        />
+      )}
     </Container>
   );
 }
-
-const Container = styled.div`
-  display: flex;
-`;
 
 export default WeekDays;

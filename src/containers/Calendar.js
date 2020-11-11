@@ -7,26 +7,20 @@ import { CalendarContext } from "../context";
 import CalendarHeader from "./Header";
 import WeekDays from "./WeekDays";
 import CellDays from "./CellDays";
-
+import { Container } from '../components/utils/commonComponents'
 const Calendar = (props) => {
   const { state } = useContext(CalendarContext);
   console.log("CurrentDate", state.currentDate);
 
   return (
     <Paper elevation={3} style={{ margin: "5rem" }}>
-      <Container>
+      <Container column>
         <CalendarHeader currentDate={state.currentDate} />
-        <Box pt={2} />
         <WeekDays />
         <CellDays />
       </Container>
     </Paper>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 export default Calendar;
