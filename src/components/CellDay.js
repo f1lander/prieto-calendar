@@ -14,26 +14,25 @@ function CellDay(props) {
   const filteredReminders = reminders.filter((item) =>
     isSameDay(new Date(item.date), date)
   );
+  const hasReminder = filteredReminders.length > 0;
+  const handleOnClickReminder = (e, reminder) => {
+    e.stopPropagation();
+    onClick(e, reminder, null, hasReminder);
+  };
+
   return (
     <>
       <CellButton
         disabled={!inCurrentMonth}
         hasReminder={filteredReminders.length}
-        onClick={onClick}
+        onClick={(e) => onClick(e, null, date, hasReminder)}
       >
         <DayLabel inCurrentMonth={inCurrentMonth} holiday={holiday}>
           {getDate(date)}
         </DayLabel>
         <Box pt={1} />
         {filteredReminders.map((reminder) => (
-          <Reminder
-            onClick={(e) => {
-              e.stopPropagation(); 
-              console.log("the reminde", e);
-              onClick(e, reminder);
-            }}
-            {...reminder}
-          />
+          <Reminder reminder={reminder} onClick={handleOnClickReminder} />
         ))}
       </CellButton>
     </>
@@ -65,6 +64,7 @@ const CellButton = styled(ButtonBase)`
   border: 1px solid lightgray;
   width: calc(100% / 7);
   min-height: 8rem;
+  max-height: 8rem;
   padding: 0.5rem;
   background-color: ${({ hasReminder }) => hasReminder && "#dfdbd8"};
 `;

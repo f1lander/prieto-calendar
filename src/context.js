@@ -1,5 +1,5 @@
 import { useReducer, createContext } from "react";
-import { addMonths, subMonths } from "date-fns";
+import { addMonths, subMonths, isSameDay } from "date-fns";
 
 const defaultReminder = {
   title: null,
@@ -22,17 +22,31 @@ let reducer = (state, action) => {
       debugger;
       return {
         ...state,
-        reminders: [...state.reminders, action.payload],
+        reminders: [
+          ...state.reminders,
+          { id: state.reminders.length + 1, ...action.payload },
+        ],
+      };
+    case "EDIT_REMINDER":
+      debugger;
+      return {
+        ...state,
+        reminders: state.reminders.map((item) =>
+          item.id === action.payload.id ? action.payload : item
+        ),
       };
     case "REMOVE_REMINDER":
       return {
         ...state,
-        reminders: state.reminder.filter(
-          (o) => o.id !== action.payload.reminderId
-        ),
+        reminders: state.reminders.filter((o) => o.id !== action.payload.id),
       };
     case "REMOVE_ALL_REMINDER":
-      return { ...state, reminders: [] };
+      return {
+        ...state,
+        reminders: state.reminders.filter(
+          (o) => !isSameDay(new Date(o.date), action.payload.date)
+        )
+      };
     case "NEXT_DATE":
       return { ...state, currentDate: addMonths(state.currentDate, 1) };
     case "PREVIOUS_DATE":
@@ -49,6 +63,7 @@ const initialState = {
   currentDate: new Date(),
   isAddingReminder: false,
   currentReminder: null,
+  defaultReminder,
 };
 const CalendarContext = createContext(initialState);
 

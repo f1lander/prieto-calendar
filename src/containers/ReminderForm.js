@@ -19,23 +19,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 function CreateReminder(props) {
   const classes = useStyles();
-  const { dispatch } = useContext(CalendarContext);
+  const { state, dispatch } = useContext(CalendarContext);
 
-  const { open, id, anchorEl, handleClose, reminder } = props;
-
-  const [newReminder, setNewReminder] = useState(reminder || {});
+  const { open, id, anchorEl, handleClose, date } = props;
+  const { currentReminder: reminder } = state;
+  const [newReminder, setNewReminder] = useState(reminder);
   const [error, setError] = useState(false);
 
   const handleOnSave = () => {
-    debugger;
     const nonValidated = Object.keys(newReminder).some(
       (key) => !newReminder[key]
     );
-
     if (!nonValidated) {
       setError(false);
       dispatch({
-        type: "ADD_REMINDER",
+        type: newReminder.id ? "EDIT_REMINDER" : "ADD_REMINDER",
         payload: {
           ...newReminder,
           date: `${newReminder.date} ${newReminder.time}`,
@@ -45,6 +43,15 @@ function CreateReminder(props) {
     } else {
       setError(true);
     }
+  };
+
+  const handleOnDelete = () => {
+    const type = reminder.id ? "REMOVE_REMINDER" : "REMOVE_ALL_REMINDER";
+    dispatch({
+      type,
+      payload: { id: reminder.id, date },
+    });
+    handleClose();
   };
   return (
     <Popover
@@ -141,7 +148,6 @@ function CreateReminder(props) {
 
           <ActionButtons column justify="center">
             <CirclePicker
-              style={{ margin: "0 auto" }}
               color={newReminder.color}
               onChangeComplete={(color) =>
                 setNewReminder({ ...newReminder, color: color.hex })
@@ -150,16 +156,8 @@ function CreateReminder(props) {
           </ActionButtons>
           <ActionButtonsContainer>
             <ActionButtons>
-              <Button
-                color="secondary"
-                onClick={() =>
-                  dispatch({
-                    type: "REMOVE_ALL_REMINDER",
-                    payload: newReminder,
-                  })
-                }
-              >
-                Delete All
+              <Button color="secondary" onClick={handleOnDelete}>
+                {`Delete${!reminder.id ? " All" : ""}`}
               </Button>
             </ActionButtons>
             <ActionButtons end>

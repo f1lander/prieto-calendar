@@ -7,11 +7,12 @@ import {
   endOfMonth,
   eachDayOfInterval,
   isWeekend,
+  format,
 } from "date-fns";
 
 import { CalendarContext } from "../context";
 
-import CreateReminder from "./CreateReminder";
+import ReminderForm from "./ReminderForm";
 
 import CellDay from "../components/CellDay";
 import { Container } from "../components/utils/commonComponents";
@@ -19,21 +20,30 @@ import { Container } from "../components/utils/commonComponents";
 function WeekDays(props) {
   const { state, dispatch } = useContext(CalendarContext);
 
-  const { currentDate, currentReminder } = state;
+  const { currentDate, defaultReminder } = state;
 
   const [cellDays, setCellDays] = useState([]);
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [cellDate, setCellDate] = useState();
 
-  const handleOnClick = (event, reminder) => {
-    event.stopPropagation(); 
+  const handleOnClick = (event, reminder, date) => {
     setAnchorEl(event.currentTarget);
-    dispatch({ type: "SET_REMINDER", payload: reminder });
+    setCellDate(date);
+    const _reminder = reminder || defaultReminder;
+    dispatch({
+      type: "SET_REMINDER",
+      payload: {
+        ..._reminder,
+        date: date
+          ? format(date, "yyyy-MM-dd")
+          : format(new Date(), "yyyy-MM-dd"),
+      },
+    });
   };
 
   const handleClose = () => {
     setAnchorEl(null);
-    //dispatch({ type: "IS_ADDING_REMINDER", payload: false });
   };
 
   const open = Boolean(anchorEl);
@@ -81,10 +91,10 @@ function WeekDays(props) {
         <CellDay onClick={handleOnClick} {...item} />
       ))}
       {open && (
-        <CreateReminder
-          reminder={currentReminder}
+        <ReminderForm
           id={id}
           open={open}
+          date={cellDate}
           anchorEl={anchorEl}
           handleClose={handleClose}
         />
