@@ -49,7 +49,7 @@ const DayLabel = styled.div`
   ${({ holiday }) =>
     holiday &&
     css`
-      color: "orange";
+      color: "#00c9ff";
       font-weight: 700;
     `}
 `;
@@ -58,8 +58,7 @@ const CellButton = styled(ButtonBase)`
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto;
   justify-content: flex-start;
   border: 1px solid lightgray;
   width: calc(100% / 7);
